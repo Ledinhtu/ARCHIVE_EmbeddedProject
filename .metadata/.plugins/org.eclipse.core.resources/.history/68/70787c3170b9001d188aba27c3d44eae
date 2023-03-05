@@ -1,0 +1,191 @@
+#include "dht.h"
+#include "delay_timer.h"
+
+/*
+ * 				   Tgo			   Treh									TH0 or TH1
+ *  __           ______          _______                              ___________________________			______
+ *    \    A    /      \   C    /       \   DHT duration_data_low    /                           \		   /
+ *     \_______/   B    \______/    D    \__________________________/   DHT duration_data_high    \_______/
+ *		  Tbe			   Trel				T_LOW													Ten
+ */
+
+#define Tbe	20
+#define Tgo	35
+#define Trel 88
+#define Treh 92
+#define T_LOW 58
+#define TH0	27
+#define TH1	74
+#define Ten	56
+
+#define DHT_TIMER_INTERVAL 2
+#define DHT_DATA_BYTES 5
+
+/***************************************************************************************************************/
+
+static void DHT_DelayUs(DHT_HandleTypeDef* DHT, uint16_t Time)
+{
+	TIM_DelayUs(DHT->Timer, Time);
+}
+
+static void DHT_SetPinOut(DHT_HandleTypeDef* DHT)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	switch (*DHT->Port) {
+		case GPIOA:
+			__HAL_RCC_GPIOA_CLK_ENABLE();
+			break;
+		case GPIOB:
+			__HAL_RCC_GPIOB_CLK_ENABLE();
+			break;
+		case GPIOC:
+			__HAL_RCC_GPIOC_CLK_ENABLE();
+			break;
+		case GPIOD:
+			__HAL_RCC_GPIOD_CLK_ENABLE();
+		break;
+		default:
+			break;
+	}
+//	HAL_GPIO_WritePin(DHT->Port, DHT->Pin, GPIO_PIN_RESET);
+	GPIO_InitStruct.Pin = DHT->Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+	HAL_GPIO_Init(DHT->Port, &GPIO_InitStruct);
+}
+
+static void DHT_SetPinIn(DHT_HandleTypeDef* DHT)
+{
+	GPIO_InitTypeDef GPIO_InitStruct = {0};
+	GPIO_InitStruct.Pin = DHT->Pin;
+	GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+	GPIO_InitStruct.Pull = GPIO_NOPULL;
+	HAL_GPIO_Init(DHT->Port, &GPIO_InitStruct);
+}
+
+static void DHT_WritePin(DHT_HandleTypeDef* DHT, GPIO_PinState PinState)
+{
+	HAL_GPIO_WritePin(DHT->Port, DHT->Pin, PinState);
+}
+
+static uint8_t DHT_ReadPin(DHT_HandleTypeDef* DHT)
+{
+	uint8_t PinState;
+	PinState =  HAL_GPIO_ReadPin(DHT->Port, DHT->Pin);
+	return PinState;
+}
+
+/***************************************************************************************************************/
+
+static dht_err_t DHT_AwaitPinState(DHT_HandleTypeDef* DHT, uint32_t timeout,
+									GPIO_PinState expected_pin_state, uint32_t* duration)
+{
+	DHT_SetPinIn(DHT);
+    for (uint32_t i = 0; i < timeout; i += DHT_TIMER_INTERVAL)
+    {
+        // need to wait at least a single interval to prevent reading a jitter
+    	DHT_DelayUs(DHT, DHT_TIMER_INTERVAL);
+        if (DHT_ReadPin(DHT) == expected_pin_state)
+        {
+        	if(duration)
+        		*duration = i;
+            return DHT_OK;
+        }
+    }
+
+    return DHT_ERR_TIMEOUT;
+}
+
+static dht_err_t DHT_FetchData(DHT_HandleTypeDef* DHT, uint8_t data[DHT_DATA_BYTES]) {
+	uint32_t low_duration;
+	uint32_t high_duration;
+
+	DHT_SetPinOut(DHT);
+	DHT_WritePin(DHT, GPIO_PIN_RESET);
+	DHT_DelayUs(DHT, Tbe);
+	DHT_WritePin(DHT, GPIO_PIN_SET);
+
+	int ret = DHT_AwaitPinState(DHT, Tgo, GPIO_PIN_RESET, NULL);
+	if(ret) {
+		return DHT_ERR_PHASE_B;
+	}
+
+	ret = DHT_AwaitPinState(DHT, Trel, GPIO_PIN_SET, NULL);
+	if(ret) {
+		return DHT_ERR_PHASE_C;
+	}
+
+	ret = DHT_AwaitPinState(DHT, Treh, GPIO_PIN_RESET, NULL);
+	if(ret) {
+		return DHT_ERR_PHASE_D;
+	}
+
+	for (int i = 0; i < DHT_DATA_BYTES; ++i) {
+		ret = DHT_AwaitPinState(DHT, T_LOW, GPIO_PIN_SET, &low_duration);
+		if (ret) {
+			return DHT_ERR_LBIT_TIMEOUT;
+		}
+		ret = DHT_AwaitPinState(DHT, TH1, GPIO_PIN_RESET, &high_duration);
+		if (ret) {
+			return DHT_ERR_HBIT_TIMEOUT;
+		}
+
+		uint8_t byte = i/8;
+		uint8_t bit = i%8;
+		if (!bit) {
+		     data[byte] = 0;
+		}
+		data[byte] |= (high_duration > TH0) << (7 - bit);
+	}
+
+	return DHT_OK;
+}
+
+/***************************************************************************************************************/
+
+void DHT_Init(DHT_HandleTypeDef* DHT, TIM_HandleTypeDef* Timer, GPIO_TypeDef* DHT_Port, uint16_t DHT_Pin)
+{
+	DHT->Error = DHT_OK;
+	DHT->Port = DHT_Port;
+	DHT->Pin = DHT_Pin;
+	DHT->Timer = Timer;
+}
+
+dht_err_t DHT_ReadTempHum(DHT_HandleTypeDef* DHT)
+{
+	uint8_t data[DHT_DATA_BYTES];
+	int ret = DHT_FetchData(DHT, data);
+	if(ret) {
+		DHT->Error = ret;
+		return ret;
+	}
+
+	if(data[4] != ((data[0] + data[1] + data[2] + data[3]) & 0xFF)) {
+		DHT->Error = DHT_ERR_INVALID_CRC;
+		return DHT_ERR_INVALID_CRC;
+	}
+	DHT->Temp = (float)(data[3]<<8|data[2]);
+	DHT->Humi = (float)(data[1]<<8|data[0]);
+	return DHT_OK;
+}
+
+void Blink_LED(DHT_HandleTypeDef* DHT){
+	uint16_t cnt = 1000;
+	DHT_SetPinOut(DHT);
+//	DHT_WritePin(DHT, GPIO_PIN_SET);
+	while(1) {
+//		cnt = 10;
+//		while(cnt--){
+//			DHT_DelayUs(DHT, 1000);
+//		}
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_RESET);
+		DHT_WritePin(DHT, GPIO_PIN_RESET);
+//		cnt = 10;
+//		while(cnt--){
+//			DHT_DelayUs(DHT, 1000);
+//		}
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, GPIO_PIN_SET);
+		DHT_WritePin(DHT, GPIO_PIN_SET);
+	}
+}

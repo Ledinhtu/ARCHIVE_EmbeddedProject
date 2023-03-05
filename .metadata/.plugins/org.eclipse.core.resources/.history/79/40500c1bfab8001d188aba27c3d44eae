@@ -1,0 +1,33 @@
+#include "delay_timer.h"
+
+/**
+  * @brief  This function provides minimum delay (in microseconds)
+  *    		mode Blocking based on a timer.
+  * @param  htim: pointer the TIM_HandleTypeDef of the timer, which is
+  * 		the source of time base.
+  * @param  Delay: specifies the delay time length, in microseconds.
+  * @retval None
+  */
+void DELAY_TIM_Us(TIM_HandleTypeDef *htim, uint16_t Delay)
+{
+	__HAL_TIM_SET_COUNTER(htim, 0);
+	HAL_TIM_Base_Start(htim);
+	while(__HAL_TIM_GET_COUNTER(htim) < Delay);
+	HAL_TIM_Base_Stop(htim);
+}
+
+/**
+  * @brief  This function provides minimum delay (in milliseconds)
+  * 		mode Blocking based on a timer.
+  * @param  htim: specifies the TIM_HandleTypeDef of the timer, which is
+  * 		the source of time base.
+  * @param  Delay: specifies the delay time length, in milliseconds.
+  * @retval None
+  */
+void DELAY_TIM_Ms(TIM_HandleTypeDef *htim, uint16_t Delay)
+{
+	while(Delay--)
+	{
+		while(__HAL_TIM_GET_COUNTER(htim) < 1000);
+	}
+}

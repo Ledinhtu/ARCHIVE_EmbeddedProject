@@ -1,0 +1,25 @@
+#ifndef __DHT_H
+#define __DHT_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32f1xx_hal.h"
+
+typedef struct
+{
+//	uint8_t Respone;
+//	uint16_t Type;
+	TIM_HandleTypeDef* Timer;
+	uint16_t PIN;
+	GPIO_TypeDef* PORT;
+	float Temp;
+	float Humi;
+}DHT_HandleTypeDef;
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __DHT_H */
