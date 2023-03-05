@@ -51,6 +51,8 @@ extern "C" {
 #define GPIO_PIN_DHT11 GPIO_PIN_15
 /* USER CODE END EM */
 
+void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
 /* Exported functions prototypes ---------------------------------------------*/
 void Error_Handler(void);
 
