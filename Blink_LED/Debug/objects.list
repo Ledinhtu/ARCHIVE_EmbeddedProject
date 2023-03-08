@@ -22,5 +22,6 @@
 "./Drivers/STM32F1xx_HAL_Driver/Src/stm32f1xx_hal_uart.o"
 "./Project_Lib/delay_timer/Src/delay_timer.o"
 "./Project_Lib/dht/Src/dht.o"
+"./Project_Lib/handle/uart_handle.o"
 "./Project_Lib/lcd_i2c/Src/lcd_i2c.o"
 "./Project_Lib/n/LiquidCrystal_I2C.o"

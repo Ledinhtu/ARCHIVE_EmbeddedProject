@@ -27,10 +27,17 @@
 #include "dht.h"
 #include "delay_timer.h"
 #include "LiquidCrystal_I2C.h"
+#include "uart_handle.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
+typedef enum
+{
+	TEMPERATURE_MODE = 1,
+	HUMIDITY_MODE,
+	MANUAL_MODE
+} MODE;
 
 /* USER CODE END PTD */
 
@@ -40,6 +47,10 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
+#define NUMBER_LEVELS 4
+#define GPIO_PORT_DHT11 GPIOC
+#define GPIO_PIN_DHT11 GPIO_PIN_15
+#define RX_DATA_SIZE 50
 
 /* USER CODE END PM */
 
@@ -49,47 +60,75 @@ I2C_HandleTypeDef hi2c1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 
-UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
+DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
+LiquidCrystal_I2C hlcd;
+DHT_HandleTypeDef DHT11;
 
+int8_t Temp_levels[NUMBER_LEVELS + 1];
+
+uint8_t RHumi_levels[NUMBER_LEVELS + 1];
+
+uint8_t Speed_Temp_mode[NUMBER_LEVELS] = {0};
+uint8_t Speed_RHumi_mode[NUMBER_LEVELS] = {0};
+uint8_t Speed_Manual_mode = 0;	// %
+
+MODE controll_mode = MANUAL_MODE;
+
+volatile char Rx_data[RX_DATA_SIZE];
+uint8_t Rx_data_begin = 0;
+uint8_t Rx_data_end = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART1_UART_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN PFP */
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
-LiquidCrystal_I2C hlcd;
-DHT_HandleTypeDef DHT11;
-
 uint8_t data_rx;
 char buff[50];
+int ret = 0;
+
+uint32_t time = 0;
 
 void HW_init(int delay) {
 	HAL_Delay(delay);
 }
 
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 
-//	if (data_rx == 'a') {
-//		HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, GPIO_PIN_SET);
-//	} else if (data_rx == 'b') {
-//		HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, GPIO_PIN_RESET);
-//	}
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
+//
+////	if (data_rx == 'a') {
+////		HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, GPIO_PIN_SET);
+////	} else if (data_rx == 'b') {
+////		HAL_GPIO_WritePin(LED_PIN_GPIO_Port, LED_PIN_Pin, GPIO_PIN_RESET);
+////	}
+//
+//	HAL_UART_Receive_IT(&huart2, &data_rx, 1);
+//}
 
-	HAL_UART_Receive_IT(&huart1, &data_rx, 1);
+void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+{
+  HAL_GPIO_TogglePin (blink_led_GPIO_Port, blink_led_Pin);  // toggle PA0
 }
 
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+{
+
+//  HAL_UART_Receive_DMA(&huart2, (uint8_t *) Rx_data, 50);
+//  HAL_UART_Transmit(&huart2,(uint8_t* )Rx_data, strlen(Rx_data), 30 );
+}
 
 /* USER CODE END 0 */
 
@@ -100,6 +139,11 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	Temp_levels[0] = DHT11_MIN_TEMPERATURE;
+	Temp_levels[NUMBER_LEVELS] = DHT11_MAX_TEMPERATURE;
+
+	RHumi_levels[0] = DHT11_MIN_RELATIVE_HUMIDITY;
+	RHumi_levels[NUMBER_LEVELS] = DHT11_MAX_RELATIVE_HUMIDITY;
 
   /* USER CODE END 1 */
 
@@ -121,19 +165,20 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_USART1_UART_Init();
+  MX_DMA_Init();
   MX_TIM2_Init();
   MX_I2C1_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
   DHT_Init(&DHT11, &htim2, GPIO_PORT_DHT11, GPIO_PIN_DHT11);
   lcd_init(&hlcd, &hi2c1, LCD_ADDR_DEFAULT);
   HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+//  HAL_UART_Receive_DMA(&huart2, (uint8_t *)buff, 50);
+  HAL_UART_Receive_DMA(&huart2, (uint8_t *)Rx_data, 50);
   HW_init(2000);
-  int ret = 0;
-  int index=0;
-  uint32_t time = 0;
+
 
   /* USER CODE END 2 */
 
@@ -141,37 +186,90 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  time = HAL_GetTick();
-	  ret = DHT_ReadTempHum(&DHT11);
-	  if(ret) {
-		  sprintf(buff, " Error Code: %d \n", ret);
-		  HAL_UART_Transmit(&huart1,(uint8_t* )buff, strlen(buff), 300 );
+//	  time = HAL_GetTick();
+//	  ret = DHT_ReadTempHum(&DHT11);
+//	  encoder_cnt = htim1.Instance->CNT;
+//	  if(ret) {
+//		  sprintf(buff, " Error Code: %d\n Encoder Count = %d\n", ret, encoder_cnt);
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//
+//	  } else {
+//		  sprintf(buff, "Read OK\n Temp: %f\n Humi: %f Time: %ld\n", DHT11.Temp, DHT11.Humi, HAL_GetTick() - time);
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//
+//		  sprintf(buff, " Encoder Count = %d\n", encoder_cnt);
+//		  		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//
+//		  sprintf(buff, " Raw Data: %d %d %d %d %d\n", DHT11.raw_data[0], DHT11.raw_data[1], DHT11.raw_data[2], DHT11.raw_data[3], DHT11.raw_data[4]);
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//	  }
+//
+//	  lcd_set_cursor(&hlcd, 0, 0);//(char)223,
+////	  lcd_printf(&hlcd, "RH=%d.%1d%c T=%d.%1d%C", DHT11.raw_data[0], DHT11.raw_data[1],  (char)223,DHT11.raw_data[2], DHT11.raw_data[3] );
+//	  lcd_printf(&hlcd, "RH=%d%% T=%d%c%C", DHT11.raw_data[0], DHT11.raw_data[2], (char)223 );
+//	  lcd_set_cursor(&hlcd, 1,4);
+//	  lcd_printf(&hlcd, "%02d/%02d/%02d", 12, 12, 12);
+//
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
+////	  for(int i=0;i<1000;i=i+100)
+////	    {
+////	      __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,i);
+////	      HAL_Delay(2000);
+////	     }
+//	  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,999);
+//	  TIM_DelayMs(&htim2, 2000);
 
-	  } else {
-		  sprintf(buff, "Read OK\n Temp: %f\n Humi: %f Time: %ld\n", DHT11.Temp, DHT11.Humi, HAL_GetTick() - time);
-		  HAL_UART_Transmit(&huart1,(uint8_t* )buff, strlen(buff), 300 );
+//	  do {
+//		  lcd_set_cursor(&hlcd, 0, 0);
+//		  lcd_printf(&hlcd, "TEMPERATURE:%d%cC", 12, (char)223);
+//		  lcd_set_cursor(&hlcd, 1, 0);
+//		  lcd_printf(&hlcd, "R_HUMIDITY : %d%%", 95);
+//		  HAL_Delay(2000);
+//		  time = HAL_GetTick();
+//		  lcd_clear_display(&hlcd);
+//		  sprintf(buff, " TIME EXE: %ld\n", HAL_GetTick()-time);
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//
+//		  uint32_t uart_time = HAL_GetTick();
+//		  sprintf(buff, " As you can see above that when the control will\n");
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 30 );
+//		  sprintf(buff, " uart TIME EXE: %ld\n", HAL_GetTick()-uart_time);
+//		  HAL_UART_Transmit(&huart2,(uint8_t* )buff, strlen(buff), 300 );
+//		  HAL_Delay(1000);
+//	  } while (0);
 
-		  sprintf(buff, " Raw Data: %d %d %d %d %d\n", DHT11.raw_data[0], DHT11.raw_data[1], DHT11.raw_data[2], DHT11.raw_data[3], DHT11.raw_data[4]);
-		  HAL_UART_Transmit(&huart1,(uint8_t* )buff, strlen(buff), 300 );
-	  }
+	 do {
+		 int flag = 0;
+		 for (uint8_t i = Rx_data_begin, cnt = 0; cnt < RX_DATA_SIZE; cnt ++, i++) {
+			if(Rx_data[i] == '\n') {
+				Rx_data_end = i;
+				flag = 1;	//
+				break;
+			}
 
-	  lcd_set_cursor(&hlcd, 0, 0);//(char)223,
-//	  lcd_printf(&hlcd, "RH=%d.%1d%c T=%d.%1d%C", DHT11.raw_data[0], DHT11.raw_data[1],  (char)223,DHT11.raw_data[2], DHT11.raw_data[3] );
-	  lcd_printf(&hlcd, "RH=%d%% T=%d%c%C", DHT11.raw_data[0], DHT11.raw_data[2], (char)223 );
-	  lcd_set_cursor(&hlcd, 1,4);
-	  lcd_printf(&hlcd, "%02d/%02d/%02d", 12, 12, 12);
+			if (i == RX_DATA_SIZE-1) {
+				i = 0;
+			}
+		}
+		if(flag) {
+			for (uint8_t i = Rx_data_begin, cnt = 0, j = 0; cnt < RX_DATA_SIZE; cnt ++, i++, j++) {
+				buff[j] = Rx_data[i];
+				Rx_data[i] = 0;
+				if(i == Rx_data_end) {
+					HAL_UART_Transmit_IT(&huart2, (uint8_t *)buff, strlen(buff));
+					break;
+				}
 
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, GPIO_PIN_RESET);
-	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, GPIO_PIN_SET);
-//	  for(int i=0;i<1000;i=i+100)
-//	    {
-//	      __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,i);
-//	      HAL_Delay(2000);
-//	     }
-	  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,999);
-	  TIM_DelayMs(&htim2, 2000);
+				if (i == RX_DATA_SIZE-1) {
+					i = 0;
+				}
+			 }
+			flag = 0;
+		}
 
-
+	 } while (0);
+	HAL_Delay (250);
 
     /* USER CODE END WHILE */
 
@@ -358,35 +456,51 @@ static void MX_TIM3_Init(void)
 }
 
 /**
-  * @brief USART1 Initialization Function
+  * @brief USART2 Initialization Function
   * @param None
   * @retval None
   */
-static void MX_USART1_UART_Init(void)
+static void MX_USART2_UART_Init(void)
 {
 
-  /* USER CODE BEGIN USART1_Init 0 */
+  /* USER CODE BEGIN USART2_Init 0 */
 
-  /* USER CODE END USART1_Init 0 */
+  /* USER CODE END USART2_Init 0 */
 
-  /* USER CODE BEGIN USART1_Init 1 */
+  /* USER CODE BEGIN USART2_Init 1 */
 
-  /* USER CODE END USART1_Init 1 */
-  huart1.Instance = USART1;
-  huart1.Init.BaudRate = 115200;
-  huart1.Init.WordLength = UART_WORDLENGTH_8B;
-  huart1.Init.StopBits = UART_STOPBITS_1;
-  huart1.Init.Parity = UART_PARITY_NONE;
-  huart1.Init.Mode = UART_MODE_TX_RX;
-  huart1.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart1.Init.OverSampling = UART_OVERSAMPLING_16;
-  if (HAL_UART_Init(&huart1) != HAL_OK)
+  /* USER CODE END USART2_Init 1 */
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 115200;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
   {
     Error_Handler();
   }
-  /* USER CODE BEGIN USART1_Init 2 */
+  /* USER CODE BEGIN USART2_Init 2 */
 
-  /* USER CODE END USART1_Init 2 */
+  /* USER CODE END USART2_Init 2 */
+
+}
+
+/**
+  * Enable DMA controller clock
+  */
+static void MX_DMA_Init(void)
+{
+
+  /* DMA controller clock enable */
+  __HAL_RCC_DMA1_CLK_ENABLE();
+
+  /* DMA interrupt init */
+  /* DMA1_Channel6_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA1_Channel6_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA1_Channel6_IRQn);
 
 }
 
@@ -400,12 +514,23 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(blink_led_GPIO_Port, blink_led_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin : blink_led_Pin */
+  GPIO_InitStruct.Pin = blink_led_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(blink_led_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : PA4 PA5 */
   GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;

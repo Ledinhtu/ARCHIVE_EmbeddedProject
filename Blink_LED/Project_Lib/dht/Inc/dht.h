@@ -7,7 +7,7 @@ extern "C" {
 
 #include "stm32f1xx_hal.h"
 
-typedef int dht_err_t;
+typedef uint16_t dht_err_t;
 #define DHT_OK 0
 #define DHT_ERR_TIMEOUT 0x101
 #define DHT_ERR_INVALID_CRC 0x102
@@ -19,6 +19,11 @@ typedef int dht_err_t;
 
 #define DHT_DATA_BITS 40
 #define DHT_DATA_BYTES (DHT_DATA_BITS/8)
+
+#define DHT11_MAX_TEMPERATURE 60	// degree celsius
+#define DHT11_MIN_TEMPERATURE -20	// degree celsius
+#define DHT11_MAX_RELATIVE_HUMIDITY 95	// percent %
+#define DHT11_MIN_RELATIVE_HUMIDITY 5	// percent %
 
 /**
   * @brief  DHT sensor handle Structure definition

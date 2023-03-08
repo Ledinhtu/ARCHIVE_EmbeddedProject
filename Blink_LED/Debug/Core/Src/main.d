@@ -27,7 +27,9 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc/dht.h \
  D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc/delay_timer.h \
- D:/STM32/CubeIDE/Blink_LED/Project_Lib/n/LiquidCrystal_I2C.h
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/n/LiquidCrystal_I2C.h \
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/uart_handle.h \
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h
 ../Core/Inc/main.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -58,3 +60,5 @@ Core/Src/main.o: ../Core/Src/main.c ../Core/Inc/main.h \
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc/dht.h:
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc/delay_timer.h:
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/n/LiquidCrystal_I2C.h:
+D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/uart_handle.h:
+D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h:

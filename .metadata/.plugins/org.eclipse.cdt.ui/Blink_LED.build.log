@@ -1,10 +1,18 @@
-17:19:39 **** Incremental Build of configuration Debug for project Blink_LED ****
+07:19:07 **** Incremental Build of configuration Debug for project Blink_LED ****
 make -j8 all 
+arm-none-eabi-gcc "../Project_Lib/handle/uart_handle.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/lcd_i2c/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/n" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Project_Lib/handle/uart_handle.d" -MT"Project_Lib/handle/uart_handle.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Project_Lib/handle/uart_handle.o"
+arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/lcd_i2c/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/n" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
+arm-none-eabi-gcc -o "Blink_LED.elf" @"objects.list"   -mcpu=cortex-m3 -T"D:\STM32\CubeIDE\Blink_LED\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blink_LED.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Blink_LED.elf
+ 
 arm-none-eabi-size   Blink_LED.elf 
+arm-none-eabi-objdump -h -S  Blink_LED.elf  > "Blink_LED.list"
    text	   data	    bss	    dec	    hex	filename
-  39644	    488	   1984	  42116	   a484	Blink_LED.elf
+  39308	    488	   2120	  41916	   a3bc	Blink_LED.elf
 Finished building: default.size.stdout
  
+Finished building: Blink_LED.list
+ 
 
-17:19:40 Build Finished. 0 errors, 0 warnings. (took 320ms)
+07:19:09 Build Finished. 0 errors, 0 warnings. (took 1s.532ms)
 

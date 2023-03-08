@@ -47,8 +47,7 @@ extern "C" {
 
 /* Exported macro ------------------------------------------------------------*/
 /* USER CODE BEGIN EM */
-#define GPIO_PORT_DHT11 GPIOC
-#define GPIO_PIN_DHT11 GPIO_PIN_15
+
 /* USER CODE END EM */
 
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
@@ -61,6 +60,10 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define blink_led_Pin GPIO_PIN_13
+#define blink_led_GPIO_Port GPIOC
+#define PWM_Pin GPIO_PIN_6
+#define PWM_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
 
