@@ -255,9 +255,13 @@ dht_err_t DHT_ReadTempHum(DHT_HandleTypeDef* DHT)
 		return DHT_ERR_INVALID_CRC;
 	}
 
-	DHT->Temp = data[2] + data[3]/10.0;
+	DHT->Temp = data[2] + (data[3]&0x7F)/10.0;
+	if(data[3]&0x80) {
+		DHT->Temp = - DHT->Temp;
+	}
 	DHT->Humi = data[0] + data[1]/10.0;
 
+	DHT->Error = DHT_OK;
 	return DHT_OK;
 }
 

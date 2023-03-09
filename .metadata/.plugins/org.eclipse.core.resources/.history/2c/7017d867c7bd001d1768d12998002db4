@@ -1,0 +1,145 @@
+#include "uart_handle.h"
+#include <stdio.h>
+#include <string.h>
+extern UART_HandleTypeDef huart2; // test
+//static uint8_t cmd_length = 0;
+//static uint8_t buff;
+static uint8_t argv[10][20];
+static uint8_t arg_num = 0;
+
+static handle_err_t Handle_SetMode();
+static handle_err_t Handle_SetTempLevel();
+static handle_err_t Handle_SetHumiLevel();
+static handle_err_t Handle_SetMotorSpeed();
+
+
+static char* req_cmds[REQUEST_COMMAND_NUMBERS] =
+{
+		SET_MODE,
+		SET_TEMPERATURE_LEVEL,
+		SET_HUMIDITY_LEVEL,
+		SET_MOTOR_SPEED
+};
+static handle_err_t (*handle_func [REQUEST_COMMAND_NUMBERS]) ()=
+{
+		Handle_SetMode,
+		Handle_SetTempLevel,
+		Handle_SetHumiLevel,
+		Handle_SetMotorSpeed
+};
+
+//handle_func [0] = Handle_SetMode;
+//handle_func [1] = Handle_SetTempLevel;
+//handle_func [2] = Handle_SetHumiLevel;
+//handle_func [3] = Handle_SetMotorSpeed;
+
+/**For circular mode*/
+//handle_err_t Check_Commad(char* Rx_data, uint8_t* Rx_data_begin, uint8_t* Rx_data_end,  uint8_t Rx_data_size) {
+//
+//	for (uint8_t i = *Rx_data_begin, cnt = 0; cnt < Rx_data_size; cnt ++, i++) {
+//		if(Rx_data[i] == '\n') {
+//			*Rx_data_end = i;
+//			return HANDLE_OK;
+//		}
+//
+//		if (i == Rx_data_size-1) {
+//			i = 0xff;
+//		}
+//	}
+//	return HANDLE_RX_UART_NOT_FOUND_CMD;
+//}
+
+/**For circular mode*/
+//handle_err_t Handle_Command(char* Rx_data, uint8_t* Rx_data_begin, uint8_t* Rx_data_end,  uint8_t Rx_data_size) {
+//	char buff[Rx_data_size];
+//
+//	for (uint8_t i = *Rx_data_begin, cnt = 0, j = 0; cnt < Rx_data_size; cnt ++, i++, j++) {
+//		buff[j] = Rx_data[i];
+//		if(i == *Rx_data_end) {
+//			Rx_data[i] = 0;
+//			buff[j+1] = '\0';
+//
+//			/****/
+//			HAL_UART_Transmit(&huart2, (uint8_t *)buff, strlen(buff),30);
+//
+//			/****/
+//			if (i == Rx_data_size-1) {
+//				*Rx_data_begin = 0;
+//			} else {
+//				*Rx_data_begin = *Rx_data_end + 1;
+//			}
+//			break;
+//		}
+//
+//		if (i == Rx_data_size-1) {
+//			i = 0xff;
+//		}
+//	}
+//	return HANDLE_OK;
+//}
+
+handle_err_t Check_Request(char* Rx_data) {
+
+	for (uint8_t i = 0; i < RX_DATA_SIZE; i++) {
+		if(Rx_data[i] == '\n') {
+			Rx_data[i] = '\0';
+			return HANDLE_OK;
+		}
+	}
+	return HANDLE_RX_UART_NOT_FOUND_CMD;
+}
+
+handle_err_t Get_Arg(char* Rx_data) {
+//	uint32_t time = HAL_GetTick();
+//	uint8_t buff[RX_DATA_SIZE] = {0};
+
+//	for (uint8_t i = 0; i < RX_DATA_SIZE; i++) {
+//		buff[i] = Rx_data[i];
+//		if(Rx_data[i] == '\n') {
+//			buff[i] = '\0';
+//			Rx_data[i] = 0;
+//		}
+//	}
+//	HAL_UART_Transmit(&huart2, (uint8_t *)Rx_data, strlen((char *)Rx_data),50); // test
+	uint16_t ret;
+	arg_num = 0;
+	char * pch;
+	pch = strtok(Rx_data, "");
+	while((pch != NULL) && (!strcmp(pch, " ")) ) {
+		strcpy( (char *)argv[arg_num++], pch);
+		pch = strtok(NULL, "");
+	}
+
+	ret = HAL_UART_DMAStop(&huart2);
+	if (ret) {return HANDLE_ERR_UART_DMA;}
+
+	ret = HAL_UART_Receive_DMA(&huart2, (uint8_t *) Rx_data, RX_DATA_SIZE);
+	if (ret) {return HANDLE_ERR_UART_DMA;}
+
+	return HANDLE_OK;
+}
+
+handle_err_t Handle_Request() {
+	for (uint8_t i = 0; i < REQUEST_COMMAND_NUMBERS; ++i) {
+		if ( strcmp((char *)argv[i], req_cmds[i]) ) {
+			handle_func[i]();
+		}
+	}
+
+	return HANDLE_OK;
+}
+
+handle_err_t Handle_SetMode(){
+	if (arg_num < (NUMBER_LEVELS-1)) {
+
+	}
+}
+handle_err_t Handle_SetTempLevel(){
+
+}
+handle_err_t Handle_SetHumiLevel(){
+
+}
+handle_err_t Handle_SetMotorSpeed(){
+
+}

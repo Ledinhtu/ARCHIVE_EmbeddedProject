@@ -9,11 +9,13 @@ RM := rm -rf
 
 # All of the sources participating in the build are defined here
 -include sources.mk
+-include Project_Lib/task/subdir.mk
 -include Project_Lib/n/subdir.mk
 -include Project_Lib/lcd_i2c/Src/subdir.mk
 -include Project_Lib/handle/subdir.mk
 -include Project_Lib/dht/Src/subdir.mk
 -include Project_Lib/delay_timer/Src/subdir.mk
+-include Project_Lib/dc_motor/subdir.mk
 -include Drivers/STM32F1xx_HAL_Driver/Src/subdir.mk
 -include Core/Startup/subdir.mk
 -include Core/Src/subdir.mk

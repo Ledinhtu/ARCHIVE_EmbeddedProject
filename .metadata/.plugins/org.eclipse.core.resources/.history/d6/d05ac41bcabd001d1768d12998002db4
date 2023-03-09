@@ -1,0 +1,30 @@
+/*
+ * dc_motor.h
+ *
+ *  Created on: Mar 8, 2023
+ *      Author: DinhTU
+ */
+
+#ifndef DC_MOTOR_DC_MOTOR_H_
+#define DC_MOTOR_DC_MOTOR_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32f1xx_hal.h"
+
+typedef struct
+{
+	uint8_t speed; // %
+	TIM_HandleTypeDef* Timer;
+	uint16_t Pin;
+	GPIO_TypeDef* Port;
+} DC_Motor_HandleTypeDef;
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif /* DC_MOTOR_DC_MOTOR_H_ */

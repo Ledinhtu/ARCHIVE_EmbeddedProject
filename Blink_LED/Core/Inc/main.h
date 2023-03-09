@@ -62,6 +62,10 @@ void Error_Handler(void);
 /* Private defines -----------------------------------------------------------*/
 #define blink_led_Pin GPIO_PIN_13
 #define blink_led_GPIO_Port GPIOC
+#define MOTOR_IN1_Pin GPIO_PIN_4
+#define MOTOR_IN1_GPIO_Port GPIOA
+#define MOTOR_IN2_Pin GPIO_PIN_5
+#define MOTOR_IN2_GPIO_Port GPIOA
 #define PWM_Pin GPIO_PIN_6
 #define PWM_GPIO_Port GPIOA
 

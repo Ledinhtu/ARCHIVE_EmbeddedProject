@@ -1,0 +1,8 @@
+#include "dc_motor.h"
+
+void DC_Motor_Init(DC_Motor_HandleTypeDef* MOTOR, TIM_HandleTypeDef* Timer, uint32_t TIMChanel, GPIO_TypeDef* Port,uint16_t Pin) {
+	MOTOR->Timer = Timer;
+	MOTOR->TIMChanel = TIMChanel;
+	MOTOR->Pin = Pin;
+	MOTOR->Port = Port;
+}

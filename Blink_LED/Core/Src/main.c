@@ -28,16 +28,15 @@
 #include "delay_timer.h"
 #include "LiquidCrystal_I2C.h"
 #include "uart_handle.h"
+#include "dc_motor.h"
+
+#include "handle.h"
+#include "task.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-typedef enum
-{
-	TEMPERATURE_MODE = 1,
-	HUMIDITY_MODE,
-	MANUAL_MODE
-} MODE;
+
 
 /* USER CODE END PTD */
 
@@ -47,10 +46,9 @@ typedef enum
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-#define NUMBER_LEVELS 4
 #define GPIO_PORT_DHT11 GPIOC
 #define GPIO_PIN_DHT11 GPIO_PIN_15
-#define RX_DATA_SIZE 50
+
 
 /* USER CODE END PM */
 
@@ -64,22 +62,23 @@ UART_HandleTypeDef huart2;
 DMA_HandleTypeDef hdma_usart2_rx;
 
 /* USER CODE BEGIN PV */
+
 LiquidCrystal_I2C hlcd;
 DHT_HandleTypeDef DHT11;
+DC_Motor_HandleTypeDef MOTOR_1;
 
 int8_t Temp_levels[NUMBER_LEVELS + 1];
-
 uint8_t RHumi_levels[NUMBER_LEVELS + 1];
 
 uint8_t Speed_Temp_mode[NUMBER_LEVELS] = {0};
 uint8_t Speed_RHumi_mode[NUMBER_LEVELS] = {0};
-uint8_t Speed_Manual_mode = 0;	// %
+//uint8_t Speed_Manual_mode = 0;	// %
 
 MODE controll_mode = MANUAL_MODE;
 
 volatile char Rx_data[RX_DATA_SIZE];
-uint8_t Rx_data_begin = 0;
-uint8_t Rx_data_end = 0;
+//uint8_t Rx_data_begin = 0;
+//uint8_t Rx_data_end = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -96,16 +95,26 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-uint8_t data_rx;
-char buff[50];
-int ret = 0;
+//uint8_t data_rx;
+//char buff[RX_DATA_SIZE];
+int16_t ret = 0;
 
-uint32_t time = 0;
+uint32_t time = 0; //test time
 
 void HW_init(int delay) {
 	HAL_Delay(delay);
 }
 
+void (*task_point_array_1[]) () = {TASK_2, TASK_5, TASK_1, TASK_2, TASK_3, TASK_4, TASK_2, TASK_5, TASK_2};
+const uint16_t tk1[] = {0,50,100,150,200,250,300,350,450};
+void (*task_point_array_2[]) () = {TASK_2, TASK_5, TASK_2, TASK_2, TASK_5, TASK_2};
+const uint16_t tk2[] = {0,50,150,300,350,450};
+const uint16_t P = 6000;
+const uint16_t p = 600;
+const uint8_t n1 = 9;
+const uint8_t n2 = 6;
+static uint32_t i_1 = 0;
+static uint32_t i_2 = 0;
 
 //void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart) {
 //
@@ -118,17 +127,17 @@ void HW_init(int delay) {
 //	HAL_UART_Receive_IT(&huart2, &data_rx, 1);
 //}
 
-void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
-{
-  HAL_GPIO_TogglePin (blink_led_GPIO_Port, blink_led_Pin);  // toggle PA0
-}
-
-void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
-{
-
-//  HAL_UART_Receive_DMA(&huart2, (uint8_t *) Rx_data, 50);
-//  HAL_UART_Transmit(&huart2,(uint8_t* )Rx_data, strlen(Rx_data), 30 );
-}
+//void HAL_UART_RxHalfCpltCallback(UART_HandleTypeDef *huart)
+//{
+//  HAL_GPIO_TogglePin (blink_led_GPIO_Port, blink_led_Pin);  // toggle PA0
+//}
+//
+//void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
+//{
+//
+//  HAL_UART_Receive_DMA(&huart2, (uint8_t *) Rx_data, RX_DATA_SIZE);
+//  HAL_UART_Transmit(&huart2,(uint8_t* )Rx_data, strlen((char *)Rx_data), 30 );
+//}
 
 /* USER CODE END 0 */
 
@@ -172,11 +181,12 @@ int main(void)
   MX_USART2_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
+  HAL_UART_Receive_DMA(&huart2, (uint8_t *)Rx_data, RX_DATA_SIZE);
+
   DHT_Init(&DHT11, &htim2, GPIO_PORT_DHT11, GPIO_PIN_DHT11);
   lcd_init(&hlcd, &hi2c1, LCD_ADDR_DEFAULT);
-  HAL_TIM_PWM_Start(&htim3,TIM_CHANNEL_1);
-//  HAL_UART_Receive_DMA(&huart2, (uint8_t *)buff, 50);
-  HAL_UART_Receive_DMA(&huart2, (uint8_t *)Rx_data, 50);
+  DC_Motor_Init(&MOTOR_1, &htim3,TIM_CHANNEL_1, MOTOR_IN1_GPIO_Port, MOTOR_IN1_Pin, MOTOR_IN2_GPIO_Port, MOTOR_IN2_Pin);
   HW_init(2000);
 
 
@@ -184,6 +194,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  const uint32_t offset = uwTick;
   while (1)
   {
 //	  time = HAL_GetTick();
@@ -239,37 +250,91 @@ int main(void)
 //		  HAL_Delay(1000);
 //	  } while (0);
 
-	 do {
-		 int flag = 0;
-		 for (uint8_t i = Rx_data_begin, cnt = 0; cnt < RX_DATA_SIZE; cnt ++, i++) {
-			if(Rx_data[i] == '\n') {
-				Rx_data_end = i;
-				flag = 1;	//
-				break;
-			}
+//	  do {
+//		 int flag = 0;
+//		 for (int8_t i = Rx_data_begin, cnt = 0; cnt < RX_DATA_SIZE; cnt ++, i++) {
+//			if(Rx_data[i] == '\n') {
+//				Rx_data_end = i;
+//				flag = 1;	//
+//				break;
+//			}
+//
+//			if (i == RX_DATA_SIZE-1) {
+//				i = -1;
+//			}
+//		}
+//		if(flag) {
+//			for (int8_t i = Rx_data_begin, cnt = 0, j = 0; cnt < RX_DATA_SIZE; cnt ++, i++, j++) {
+//				buff[j] = Rx_data[i];
+//				if(i == Rx_data_end) {
+//					Rx_data[i] = 0;
+//					buff[j+1] = '\0';
+//					HAL_UART_Transmit(&huart2, (uint8_t *)buff, strlen(buff),30);
+//
+//					if (i == RX_DATA_SIZE-1) {
+//						Rx_data_begin = 0;
+//					} else {
+//						Rx_data_begin = Rx_data_end + 1;
+//					}
+//					break;
+//				}
+//
+//				if (i == RX_DATA_SIZE-1) {
+//					i = -1;
+//				}
+//			 }
+//			flag = 0;
+//		}
+//
+//	 } while (0);
 
-			if (i == RX_DATA_SIZE-1) {
-				i = 0;
-			}
+//	  do{
+//		  ret = Check_Commad((char *)Rx_data, &Rx_data_begin, &Rx_data_end, RX_DATA_SIZE);
+//		  if (ret == HANDLE_OK) {
+//			  Handle_Command((char *)Rx_data, &Rx_data_begin, &Rx_data_end, RX_DATA_SIZE);
+//		  }
+//
+//	  } while(0);
+
+//	 HAL_Delay (5000);
+//	 HAL_UART_DMAStop(&huart2);
+//	 HAL_GPIO_WritePin(blink_led_GPIO_Port, blink_led_Pin, GPIO_PIN_SET);
+//	 HAL_Delay (1000);
+//	 if(Rx_data[RX_DATA_SIZE-1]) {
+//		 HAL_UART_Receive_DMA(&huart2, (uint8_t *) Rx_data, RX_DATA_SIZE);
+//		 HAL_GPIO_WritePin(blink_led_GPIO_Port, blink_led_Pin, GPIO_PIN_RESET);
+//	 } //
+//	  MOTOR_1.speed = 50;
+
+//	  HAL_Delay (5000);
+//	  TASK_2((char *)Rx_data);
+//	  TASK_1();
+//	  TASK_5();
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4, 0);
+//	  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_5, 1);
+//	  __HAL_TIM_SetCompare(&htim3,TIM_CHANNEL_1,999);
+//	  TASK_3();
+//	  TASK_4();
+//	  HAL_Delay(2000);
+
+//	  if (controll_mode == 2 || MOTOR_1.setSpeed > 50) {
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 0);
+//	} else {
+//		HAL_GPIO_WritePin(GPIOC, GPIO_PIN_13, 1);
+//	}
+//	  HAL_Delay(150);
+
+	if ((uwTick-offset)%P < p) {
+		if ((uwTick-offset) % p == tk1[i_1 % n1] ) {
+			task_point_array_1[i_1 % n1]();
+			i_1++;
 		}
-		if(flag) {
-			for (uint8_t i = Rx_data_begin, cnt = 0, j = 0; cnt < RX_DATA_SIZE; cnt ++, i++, j++) {
-				buff[j] = Rx_data[i];
-				Rx_data[i] = 0;
-				if(i == Rx_data_end) {
-					HAL_UART_Transmit_IT(&huart2, (uint8_t *)buff, strlen(buff));
-					break;
-				}
-
-				if (i == RX_DATA_SIZE-1) {
-					i = 0;
-				}
-			 }
-			flag = 0;
+	} else {
+		if ((uwTick-offset) % p == tk2[i_2 % n2] ) {
+			task_point_array_2[i_2 % n2]();
+			i_2++;
 		}
-
-	 } while (0);
-	HAL_Delay (250);
+	}
 
     /* USER CODE END WHILE */
 
@@ -520,10 +585,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(blink_led_GPIO_Port, blink_led_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(blink_led_GPIO_Port, blink_led_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, MOTOR_IN1_Pin|MOTOR_IN2_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : blink_led_Pin */
   GPIO_InitStruct.Pin = blink_led_Pin;
@@ -532,8 +597,8 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(blink_led_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PA4 PA5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5;
+  /*Configure GPIO pins : MOTOR_IN1_Pin MOTOR_IN2_Pin */
+  GPIO_InitStruct.Pin = MOTOR_IN1_Pin|MOTOR_IN2_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

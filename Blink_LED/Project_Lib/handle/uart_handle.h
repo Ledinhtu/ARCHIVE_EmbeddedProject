@@ -8,7 +8,10 @@ extern "C" {
 #include "stm32f1xx_hal.h"
 #include "handle.h"
 
-handle_err_t Check_Commad(char* Rx_data, uint8_t* Rx_data_begin, uint8_t* Rx_data_end,  uint8_t Rx_data_size);
+
+handle_err_t Check_Request(char* Rx_data);
+handle_err_t Get_Arg(char* Rx_data);
+handle_err_t Handle_Request();
 
 #ifdef __cplusplus
 }

@@ -1,0 +1,24 @@
+/*
+ * dc_motor.h
+ *
+ *  Created on: Mar 8, 2023
+ *      Author: DinhTU
+ */
+
+#ifndef DC_MOTOR_DC_MOTOR_H_
+#define DC_MOTOR_DC_MOTOR_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32f1xx_hal.h"
+
+
+
+#ifdef __cplusplus
+}
+#endif
+
+
+#endif /* DC_MOTOR_DC_MOTOR_H_ */

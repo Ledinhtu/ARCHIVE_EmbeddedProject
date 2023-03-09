@@ -1,3 +1,6 @@
+CustomFiltersActionGroup.org.eclipse.cdt.ui.COutlinePage.TAG_DUMMY_TO_TEST_EXISTENCE=storedViewPreferences
+CustomFiltersActionGroup.org.eclipse.cdt.ui.COutlinePage.userDefinedPatterns=dma
+CustomFiltersActionGroup.org.eclipse.cdt.ui.COutlinePage.userDefinedPatternsEnabled=true
 eclipse.preferences.version=1
 org.eclipse.cdt.ui.outline.groupincludes=true
 org.eclipse.cdt.ui.outline.groupmacros=true

@@ -1,0 +1,5 @@
+../Project_Lib/task/task.c:23:6:TASK_1	8	static
+../Project_Lib/task/task.c:28:6:TASK_2	16	static
+../Project_Lib/task/task.c:44:6:TASK_3	40	static
+../Project_Lib/task/task.c:64:6:TASK_4	16	static
+../Project_Lib/task/task.c:83:6:TASK_5	24	static

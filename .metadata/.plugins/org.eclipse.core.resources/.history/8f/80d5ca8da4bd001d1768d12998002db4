@@ -1,0 +1,25 @@
+#ifndef __TASK_H
+#define __TASK_H
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+#include "stm32f1xx_hal.h"
+#include "dht.h"
+#include "delay_timer.h"
+#include "LiquidCrystal_I2C.h"
+#include "uart_handle.h"
+
+void TASK_1(); // read DHT11
+void TASK_2(); // handle RX uart
+void TASK_3(); // TX uart
+void TASK_4(); // display LCD temperature & relative humidity of DHT11
+void TASK_5(); // controll speed motor
+
+
+#ifdef __cplusplus
+}
+#endif
+
+#endif /* __TASK_H */

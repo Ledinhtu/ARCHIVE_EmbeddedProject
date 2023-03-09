@@ -1,1 +1,7 @@
-../Project_Lib/handle/uart_handle.c:3:14:Check_Commad	32	static
+../Project_Lib/handle/uart_handle.c:89:14:Check_Request	24	static
+../Project_Lib/handle/uart_handle.c:100:14:Get_Arg	24	static
+../Project_Lib/handle/uart_handle.c:126:14:Handle_Request	16	static
+../Project_Lib/handle/uart_handle.c:143:14:Handle_SetMode	16	static
+../Project_Lib/handle/uart_handle.c:162:14:Handle_SetTempLevel	16	static
+../Project_Lib/handle/uart_handle.c:194:14:Handle_SetHumiLevel	16	static
+../Project_Lib/handle/uart_handle.c:224:14:Handle_SetMotorSpeed	16	static

@@ -26,7 +26,9 @@ Project_Lib/handle/uart_handle.o: ../Project_Lib/handle/uart_handle.c \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
- ../Project_Lib/handle/handle.h
+ ../Project_Lib/handle/handle.h \
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor/dc_motor.h \
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc/dht.h
 ../Project_Lib/handle/uart_handle.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -55,3 +57,5 @@ Project_Lib/handle/uart_handle.o: ../Project_Lib/handle/uart_handle.c \
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h:
 ../Project_Lib/handle/handle.h:
+D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor/dc_motor.h:
+D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc/dht.h:
