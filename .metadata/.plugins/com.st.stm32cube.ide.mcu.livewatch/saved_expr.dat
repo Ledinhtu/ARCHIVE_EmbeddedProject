@@ -7,3 +7,4 @@ RHumi_levels
 Speed_RHumi_mode
 MOTOR_1
 mul
+DHT11

@@ -109,7 +109,7 @@ void (*task_point_array_1[]) () = {TASK_2, TASK_5, TASK_1, TASK_2, TASK_3, TASK_
 const uint16_t tk1[] = {0,50,100,150,200,250,300,350,450};
 void (*task_point_array_2[]) () = {TASK_2, TASK_5, TASK_2, TASK_2, TASK_5, TASK_2};
 const uint16_t tk2[] = {0,50,150,300,350,450};
-const uint16_t P = 6000;
+const uint16_t P = 6000; // f = 50 ms
 const uint16_t p = 600;
 const uint8_t n1 = 9;
 const uint8_t n2 = 6;

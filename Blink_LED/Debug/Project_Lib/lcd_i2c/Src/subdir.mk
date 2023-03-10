@@ -15,13 +15,13 @@ C_DEPS += \
 
 
 # Each subdirectory must supply rules for building sources it contributes
-Project_Lib/lcd_i2c/Src/%.o Project_Lib/lcd_i2c/Src/%.su: ../Project_Lib/lcd_i2c/Src/%.c Project_Lib/lcd_i2c/Src/subdir.mk
-	arm-none-eabi-gcc "$<" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/lcd_i2c/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/n" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/task" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
+Project_Lib/lcd_i2c/Src/%.o Project_Lib/lcd_i2c/Src/%.su Project_Lib/lcd_i2c/Src/%.cyclo: ../Project_Lib/lcd_i2c/Src/%.c Project_Lib/lcd_i2c/Src/subdir.mk
+	arm-none-eabi-gcc "$<" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/lcd_i2c/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/n" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/task" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" --specs=nano.specs -mfloat-abi=soft -mthumb -o "$@"
 
 clean: clean-Project_Lib-2f-lcd_i2c-2f-Src
 
 clean-Project_Lib-2f-lcd_i2c-2f-Src:
-	-$(RM) ./Project_Lib/lcd_i2c/Src/lcd_i2c.d ./Project_Lib/lcd_i2c/Src/lcd_i2c.o ./Project_Lib/lcd_i2c/Src/lcd_i2c.su
+	-$(RM) ./Project_Lib/lcd_i2c/Src/lcd_i2c.cyclo ./Project_Lib/lcd_i2c/Src/lcd_i2c.d ./Project_Lib/lcd_i2c/Src/lcd_i2c.o ./Project_Lib/lcd_i2c/Src/lcd_i2c.su
 
 .PHONY: clean-Project_Lib-2f-lcd_i2c-2f-Src
 

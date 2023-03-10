@@ -1,30 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <section name="Workbench">
 	<section name="org.eclipse.ui.texteditor.FindReplaceDialog">
-		<item key="selection" value="Read_Argv"/>
+		<item key="selection" value="Tx"/>
 		<item key="wrap" value="true"/>
 		<item key="casesensitive" value="false"/>
 		<item key="wholeword" value="false"/>
 		<item key="incremental" value="false"/>
 		<item key="isRegEx" value="false"/>
 		<list key="findhistory">
-			<item value="Read_Argv"/>
-			<item value="DC_MOTOR_DC_MOTOR_H_"/>
-			<item value="__DHT_H"/>
-			<item value="HAL_UART_StateTypeDef"/>
-			<item value="__UART_HANDLE_H"/>
-			<item value="hlcd"/>
-			<item value="dht_err_t"/>
-			<item value="index"/>
-			<item value="HW_init"/>
-			<item value="HW"/>
-			<item value="__LCD_I2C_H"/>
-			<item value="Pointer to a DHT_HandleTypeDef structure that containsthe configuration information for the specified DHT sensor."/>
-			<item value="DHT sensor handle of the sensor."/>
-			<item value="htim2"/>
-			<item value="uint8_t ret"/>
+			<item value="TX"/>
+			<item value="PWM"/>
+			<item value="Tbe"/>
+			<item value="BEGIN PV "/>
+			<item value=" BEGIN PV "/>
+			<item value="Task/init"/>
+			<item value="__TASK_H"/>
+			<item value="begin 5"/>
+			<item value="begin 6"/>
+			<item value="brgin 5"/>
+			<item value="begin 4"/>
+			<item value="Proto"/>
+			<item value="lcd"/>
+			<item value="lcd_init"/>
+			<item value="PV"/>
 		</list>
 		<list key="replacehistory">
+			<item value="__HANDLE_TASK_H"/>
 			<item value="__TASK_H"/>
 			<item value="TASK_H"/>
 			<item value="__HANDLE_H"/>

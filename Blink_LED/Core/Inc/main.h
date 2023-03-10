@@ -70,6 +70,8 @@ void Error_Handler(void);
 #define PWM_GPIO_Port GPIOA
 
 /* USER CODE BEGIN Private defines */
+#define DHT11_Pin GPIO_PIN_15
+#define DHT11_GPIO_Port GPIOC
 
 /* USER CODE END Private defines */
 
