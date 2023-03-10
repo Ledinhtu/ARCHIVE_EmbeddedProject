@@ -29,7 +29,6 @@ Project_Lib/dc_motor \
 Project_Lib/delay_timer/Src \
 Project_Lib/dht/Src \
 Project_Lib/handle \
-Project_Lib/lcd_i2c/Src \
 Project_Lib/n \
 Project_Lib/task \
 

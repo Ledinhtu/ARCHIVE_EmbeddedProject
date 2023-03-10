@@ -13,3 +13,4 @@
 1678397713077	Delete resource 'FreeRTOS_BL/Project_Lib/task'
 1678397715879	Delete resource 'FreeRTOS_BL/Project_Lib/n'
 1678420005941	Delete resource 'dht11_lcd_uart'
+1678445226303	Delete resource 'Blink_LED/Project_Lib/lcd_i2c'

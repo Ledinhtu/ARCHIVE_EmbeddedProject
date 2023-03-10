@@ -32,7 +32,8 @@ Project_Lib/task/task.o: ../Project_Lib/task/task.c \
  D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/uart_handle.h \
  D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h \
  D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor/dc_motor.h \
- D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h
+ D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h \
+ ../Core/Inc/main.h
 ../Project_Lib/task/task.h:
 ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:
 ../Core/Inc/stm32f1xx_hal_conf.h:
@@ -67,3 +68,4 @@ D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/uart_handle.h:
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h:
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor/dc_motor.h:
 D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle/handle.h:
+../Core/Inc/main.h:

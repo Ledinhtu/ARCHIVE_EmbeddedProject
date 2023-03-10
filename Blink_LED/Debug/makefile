@@ -11,7 +11,6 @@ RM := rm -rf
 -include sources.mk
 -include Project_Lib/task/subdir.mk
 -include Project_Lib/n/subdir.mk
--include Project_Lib/lcd_i2c/Src/subdir.mk
 -include Project_Lib/handle/subdir.mk
 -include Project_Lib/dht/Src/subdir.mk
 -include Project_Lib/delay_timer/Src/subdir.mk

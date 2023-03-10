@@ -68,10 +68,18 @@ void Error_Handler(void);
 #define MOTOR_IN2_GPIO_Port GPIOA
 #define PWM_Pin GPIO_PIN_6
 #define PWM_GPIO_Port GPIOA
+#define Red_Alarm_LED_Pin GPIO_PIN_13
+#define Red_Alarm_LED_GPIO_Port GPIOB
+#define Yellow_Alarm_LED_Pin GPIO_PIN_14
+#define Yellow_Alarm_LED_GPIO_Port GPIOB
+#define Green_Alarm_LED_Pin GPIO_PIN_15
+#define Green_Alarm_LED_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 #define DHT11_Pin GPIO_PIN_15
 #define DHT11_GPIO_Port GPIOC
+
+
 
 /* USER CODE END Private defines */
 

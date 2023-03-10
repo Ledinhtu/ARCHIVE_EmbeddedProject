@@ -1,58 +1,51 @@
-16:47:40 **** Incremental Build of configuration Debug for project FreeRTOS_BL ****
+18:36:00 **** Incremental Build of configuration Debug for project Blink_LED ****
 make -j8 all 
-arm-none-eabi-gcc "../Core/Src/main.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I../Middlewares/Third_Party/FreeRTOS/Source/include -I../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2 -I../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3 -I"D:/STM32/CubeIDE/FreeRTOS_BL/Project_Lib/Inc" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Core/Src/main.d" -MT"Core/Src/main.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Core/Src/main.o"
-In file included from D:/STM32/CubeIDE/FreeRTOS_BL/Project_Lib/Inc/uart_handle.h:9,
-                 from ../Core/Src/main.c:32:
-D:/STM32/CubeIDE/FreeRTOS_BL/Project_Lib/Inc/handle.h:35: warning: "DEBUG" redefined
-   35 | #define DEBUG
-      | 
-<command-line>: note: this is the location of the previous definition
-../Core/Src/main.c: In function 'StartTaskReadDHT':
-../Core/Src/main.c:656:45: warning: passing argument 3 of 'osMessageQueuePut' makes integer from pointer without a cast [-Wint-conversion]
-  656 |   osMessageQueuePut(motorQueueHandle, &msg, NULL, 0);
-      |                                             ^~~~
-      |                                             |
-      |                                             void *
-In file included from ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:146,
-                 from ../Core/Src/main.c:21:
-../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h:689:86: note: expected 'uint8_t' {aka 'unsigned char'} but argument is of type 'void *'
-  689 | osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
-      |                                                                              ~~~~~~~~^~~~~~~~
-../Core/Src/main.c:648:12: warning: variable 'ret' set but not used [-Wunused-but-set-variable]
-  648 |  dht_err_t ret = DHT_OK;
-      |            ^~~
-../Core/Src/main.c: In function 'StartTaskHandleUart':
-../Core/Src/main.c:717:21: warning: passing argument 2 of 'TX_uart' discards 'volatile' qualifier from pointer target type [-Wdiscarded-qualifiers]
-  717 |    TX_uart(&huart2, Rx_data);
-      |                     ^~~~~~~
-../Core/Src/main.c:554:52: note: expected 'const char *' but argument is of type 'volatile char *'
-  554 | void TX_uart(UART_HandleTypeDef *huart,const char* str, ...)
-      |                                        ~~~~~~~~~~~~^~~
-../Core/Src/main.c:724:47: warning: passing argument 3 of 'osMessageQueuePut' makes integer from pointer without a cast [-Wint-conversion]
-  724 |     osMessageQueuePut(motorQueueHandle, &msg, NULL, 0);
-      |                                               ^~~~
-      |                                               |
-      |                                               void *
-In file included from ../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os.h:146,
-                 from ../Core/Src/main.c:21:
-../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.h:689:86: note: expected 'uint8_t' {aka 'unsigned char'} but argument is of type 'void *'
-  689 | osStatus_t osMessageQueuePut (osMessageQueueId_t mq_id, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
-      |                                                                              ~~~~~~~~^~~~~~~~
-arm-none-eabi-gcc -o "FreeRTOS_BL.elf" @"objects.list"   -mcpu=cortex-m3 -T"D:\STM32\CubeIDE\FreeRTOS_BL\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="FreeRTOS_BL.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
-Finished building target: FreeRTOS_BL.elf
+arm-none-eabi-gcc "../Project_Lib/task/task.c" -mcpu=cortex-m3 -std=gnu11 -g3 -DDEBUG -DUSE_HAL_DRIVER -DSTM32F103xB -c -I../Core/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc -I../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy -I../Drivers/CMSIS/Device/ST/STM32F1xx/Include -I../Drivers/CMSIS/Include -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dht/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/delay_timer/Inc" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/n" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/handle" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/task" -I"D:/STM32/CubeIDE/Blink_LED/Project_Lib/dc_motor" -O0 -ffunction-sections -fdata-sections -Wall -fstack-usage -fcyclomatic-complexity -MMD -MP -MF"Project_Lib/task/task.d" -MT"Project_Lib/task/task.o" --specs=nano.specs -mfloat-abi=soft -mthumb -o "Project_Lib/task/task.o"
+In file included from ../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h:131,
+                 from ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h:30,
+                 from ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h:29,
+                 from ../Core/Inc/stm32f1xx_hal_conf.h:238,
+                 from ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:30,
+                 from ../Project_Lib/task/task.h:15,
+                 from ../Project_Lib/task/task.c:1:
+../Project_Lib/task/task.c: In function 'TASK_5':
+../Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h:666:29: warning: passing argument 2 of 'HAL_GPIO_WritePin' makes integer from pointer without a cast [-Wint-conversion]
+  666 | #define GPIOB               ((GPIO_TypeDef *)GPIOB_BASE)
+      |                             ^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      |                             |
+      |                             GPIO_TypeDef *
+../Core/Inc/main.h:72:33: note: in expansion of macro 'GPIOB'
+   72 | #define Red_Alarm_LED_GPIO_Port GPIOB
+      |                                 ^~~~~
+../Project_Lib/task/task.c:129:51: note: in expansion of macro 'Red_Alarm_LED_GPIO_Port'
+  129 |        HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_GPIO_Port, 0);
+      |                                                   ^~~~~~~~~~~~~~~~~~~~~~~
+In file included from ../Core/Inc/stm32f1xx_hal_conf.h:242,
+                 from ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h:30,
+                 from ../Project_Lib/task/task.h:15,
+                 from ../Project_Lib/task/task.c:1:
+../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h:235:54: note: expected 'uint16_t' {aka 'short unsigned int'} but argument is of type 'GPIO_TypeDef *'
+  235 | void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin, GPIO_PinState PinState);
+      |                                             ~~~~~~~~~^~~~~~~~
+At top level:
+../Project_Lib/task/task.c:20:17: warning: 'time' defined but not used [-Wunused-variable]
+   20 | static uint32_t time = 0; // test
+      |                 ^~~~
+arm-none-eabi-gcc -o "Blink_LED.elf" @"objects.list"   -mcpu=cortex-m3 -T"D:\STM32\CubeIDE\Blink_LED\STM32F103C8TX_FLASH.ld" --specs=nosys.specs -Wl,-Map="Blink_LED.map" -Wl,--gc-sections -static --specs=nano.specs -mfloat-abi=soft -mthumb -u _printf_float -u _scanf_float -Wl,--start-group -lc -lm -Wl,--end-group
+Finished building target: Blink_LED.elf
  
-arm-none-eabi-size   FreeRTOS_BL.elf 
-arm-none-eabi-objdump -h -S  FreeRTOS_BL.elf  > "FreeRTOS_BL.list"
+arm-none-eabi-size   Blink_LED.elf 
+arm-none-eabi-objdump -h -S  Blink_LED.elf  > "Blink_LED.list"
    text	   data	    bss	    dec	    hex	filename
-  59964	    528	  14120	  74612	  12374	FreeRTOS_BL.elf
+  45344	    584	   2368	  48296	   bca8	Blink_LED.elf
 Finished building: default.size.stdout
  
-Finished building: FreeRTOS_BL.list
+Finished building: Blink_LED.list
  
-16:47:45 **** Incremental Build of configuration Debug for project FreeRTOS_BL ****
+18:36:05 **** Incremental Build of configuration Debug for project Blink_LED ****
 make -j8 all 
-arm-none-eabi-size   FreeRTOS_BL.elf 
+arm-none-eabi-size   Blink_LED.elf 
    text	   data	    bss	    dec	    hex	filename
-  59964	    528	  14120	  74612	  12374	FreeRTOS_BL.elf
+  45344	    584	   2368	  48296	   bca8	Blink_LED.elf
 Finished building: default.size.stdout
  

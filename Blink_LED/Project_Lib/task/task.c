@@ -1,6 +1,7 @@
 #include "task.h"
 #include <string.h>
 #include <stdio.h>
+#include "main.h"
 
 extern DHT_HandleTypeDef DHT11;
 extern LiquidCrystal_I2C hlcd;
@@ -48,7 +49,9 @@ void TASK_3(){
 //	sprintf(buff, "Speed %d\nDHT_status 0x%#03x\n", MOTOR_1.speed, DHT11.Error);
 
 	if(DHT11.Error) {
-		sprintf(buff, "Speed %d\nDHT_status 0x%#03x\n\n", MOTOR_1.speed, DHT11.Error);
+//		sprintf(buff, "Speed %d\nDHT_status %#03x\n\n", MOTOR_1.speed, DHT11.Error);
+		sprintf(buff, "DHT_status %#03x\n\n", DHT11.Error);
+
 	} else {
 //		sprintf(buff, "Speed %d\nDHT_status %d\nTemp %.2f\nHumi %.2f\n\n", MOTOR_1.speed, DHT11.Error, DHT11.Temp, DHT11.Humi);
 		sprintf(buff, "DHT_status %d\nTemp %.2f\nHumi %.2f\n\n", DHT11.Error, DHT11.Temp, DHT11.Humi);
@@ -77,6 +80,8 @@ void TASK_4(){
 
 	}
 
+
+
 }
 
 /** Control speed motor*/
@@ -93,6 +98,38 @@ void TASK_5(){
 //					__HAL_TIM_SetCompare(MOTOR_1.Timer,MOTOR_1.TIMChanel, Speed_Temp_mode[i]* MOTOR_1.Timer->Instance->ARR/100);
 
 					__HAL_TIM_SetCompare(MOTOR_1.Timer,MOTOR_1.TIMChanel, Speed_Temp_mode[i]* MOTOR_1.Timer->Instance->ARR/100);
+//					HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 1);
+//					HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 1);
+//					HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_GPIO_Port, 1);
+
+					switch (i) {
+						case 0:
+							HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_Pin, 0);
+							break;
+						case 1:
+							HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 1);
+							HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_Pin, 0);
+							break;
+						case 2:
+							HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 1);
+							HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_Pin, 0);
+							break;
+						case 3:
+							HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_Pin, 1);
+							break;
+						default:
+							HAL_GPIO_WritePin(Green_Alarm_LED_GPIO_Port, Green_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Yellow_Alarm_LED_GPIO_Port, Yellow_Alarm_LED_Pin, 0);
+							HAL_GPIO_WritePin(Red_Alarm_LED_GPIO_Port, Red_Alarm_LED_GPIO_Port, 0);
+							break;
+					}
+
 					break;
 				}
 
